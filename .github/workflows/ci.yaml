@@ -1,10 +1,32 @@
 # Goal: Build the image for the DevBoard Frontend and Push to DockerHub
 name: CI
-on: 
+
+on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
+  code-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Run Linters
+        uses: wearerequired/lint-action@v2
+        with:
+          eslint: true
+          prettier: true
+
   build-and-push:
     runs-on: ubuntu-latest
     steps:
@@ -16,7 +38,7 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          
+
       - name: Docker Build and Push
         uses: docker/build-push-action@v7
         with:
